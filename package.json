@@ -20,19 +20,18 @@
   "homepage": "https://github.com/fatihtatoglu/tat-router#readme",
   "scripts": {
     "test": "jest",
-    "coverage": "nyc --reporter=lcov npm test"
+    "coverage": "nyc --reporter=lcov --reporter=text-lcov npm test"
   },
   "jest": {
     "collectCoverage": true,
     "testResultsProcessor": "jest-sonar-reporter",
     "coverageReporters": [
-      "lcov",
-      "text"
+      "lcov"
     ]
   },
   "jestSonar": {
     "reportPath": ".",
-    "reportFile": "test-report.xml",
+    "reportFile": "testresult.xml",
     "indent": 4
   },
   "devDependencies": {

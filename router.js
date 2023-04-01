@@ -81,7 +81,8 @@ Router.prototype.navigate = function (req, res) {
     for (var g = this.routes[method], e = 0; e < g.length; e++) {
         var f = g[e];
         if (f.match(c)) {
-            c = f.getParams(c), f.handler(res, c, b);
+            c = f.getParams(c);
+            f.handler(res, c, b);
             return;
         }
     }
