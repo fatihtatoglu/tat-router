@@ -82,4 +82,8 @@ Throws.notHave = function (obj, propName, message) {
     }
 };
 
+Throws.validURL = function(url, message){
+    
+};
+
 module.exports = Throws;
