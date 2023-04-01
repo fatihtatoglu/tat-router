@@ -30,6 +30,11 @@
       "text"
     ]
   },
+  "jestSonar": {
+    "reportPath": ".",
+    "reportFile": "test-report.xml",
+    "indent": 4
+  },
   "devDependencies": {
     "@jest/globals": "^29.5.0",
     "jest": "^29.5.0",
