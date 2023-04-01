@@ -16,18 +16,13 @@ jobs:
         fetch-depth: 0
 
     - name: Use Node.js 18
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: 18.x
 
-    - name: Install Dependencies
-      run: npm install
-
-    - name: Run Tests
-      run: npm test
-    
-    - name: Run Code Coverage
-      run: npm run coverage
+    - run: npm install
+    - run: npm test
+    - run: npm run coverage
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@master
