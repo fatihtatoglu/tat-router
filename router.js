@@ -73,13 +73,13 @@ Router.prototype.navigate = function (req, res) {
         return;
     }
 
-    var b = moduleUrl.parse(url, !0), c = b.pathname;
+    let b = moduleUrl.parse(url, !0), c = b.pathname;
     b = b.query;
 
     1 < c.length && "/" === c[c.length - 1] && (c = c.slice(0, -1));
 
-    for (var g = this.routes[method], e = 0; e < g.length; e++) {
-        var f = g[e];
+    for (let g = this.routes[method], e = 0; e < g.length; e++) {
+        let f = g[e];
         if (f.match(c)) {
             c = f.getParams(c);
             f.handler(res, c, b);

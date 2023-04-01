@@ -1,4 +1,4 @@
-var Throws = {};
+const Throws = {};
 
 /**
  * Throws an error if the given value is not a function.

@@ -3,7 +3,7 @@ node_modules/
 
 # Test and Coverage
 coverage/
-test-report.xml
+testresult.xml
 .nyc_output/
 
 # Local Sample File

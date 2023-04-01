@@ -62,11 +62,11 @@ Route.prototype.getParams = function (url) {
     Throws.notString(url, "Invalid url.");
     Throws.emptyString(url, "Invalid url.");
 
-    var params = {};
+    let params = {};
     url = url.match(this.patternRegEx);
 
-    for (var e = this.path.match(PARAMETER_FINDER) || [], d = 0; d < e.length; d++) {
-        var c = e[d].substring(1);
+    for (let e = this.path.match(PARAMETER_FINDER) || [], d = 0; d < e.length; d++) {
+        let c = e[d].substring(1);
         params[c] = url[d + 1];
     }
 
