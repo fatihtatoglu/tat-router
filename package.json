@@ -1,0 +1,39 @@
+{
+  "name": "tat-router",
+  "version": "1.0.0",
+  "description": "A lightweight routing library.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fatihtatoglu/tat-router.git"
+  },
+  "keywords": [
+    "router",
+    "http"
+  ],
+  "contributors": [
+    "Fatih Tatoğlu <https://github.com/fatihtatoglu>"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fatihtatoglu/tat-router/issues"
+  },
+  "homepage": "https://github.com/fatihtatoglu/tat-router#readme",
+  "scripts": {
+    "test": "jest",
+    "coverage": "nyc --reporter=lcov npm test"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "testResultsProcessor": "jest-sonar-reporter",
+    "coverageReporters": [
+      "lcov",
+      "text"
+    ]
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.5.0",
+    "jest": "^29.5.0",
+    "jest-sonar-reporter": "^2.0.0",
+    "nyc": "^15.1.0"
+  }
+}
