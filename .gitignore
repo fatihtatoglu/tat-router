@@ -4,6 +4,7 @@ node_modules/
 # Test and Coverage
 coverage/
 test-report.xml
+.nyc_output/
 
 # Local Sample File
 sample.js
