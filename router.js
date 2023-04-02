@@ -56,6 +56,7 @@ Router.prototype.add = function (method, path, handler) {
  * @throws {Error} Invalid response object.
  * @throws {Error} Invalid method.
  * @throws {Error} Invalid url.
+ * @throws {Error} Invalid url.
  */
 Router.prototype.navigate = function (req, res) {
 
@@ -68,6 +69,8 @@ Router.prototype.navigate = function (req, res) {
     const method = req.method;
     const url = req.url;
 
+    Throws.validURL(url, "Invalid url.");
+
     if (!this.routes[method]) {
         this.notFoundHandler(res);
         return;
@@ -79,10 +82,12 @@ Router.prototype.navigate = function (req, res) {
     1 < c.length && "/" === c[c.length - 1] && (c = c.slice(0, -1));
 
     for (let g = this.routes[method], e = 0; e < g.length; e++) {
-        let f = g[e];
-        if (f.match(c)) {
-            c = f.getParams(c);
-            f.handler(res, c, b);
+        let route = g[e];
+
+        // We have a redos vulnerability.
+        if (route.match(c)) {
+            c = route.getParams(c);
+            route.handler(res, c, b);
             return;
         }
     }

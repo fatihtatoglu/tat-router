@@ -2,6 +2,13 @@ const Router = require("../router"),
     { describe, expect } = require("@jest/globals"),
     METHODS = require("http").METHODS;
 
+function createRequest(method, url) {
+    return {
+        method: method,
+        url: "http://localhost" + url
+    };
+}
+
 describe("Router", () => {
     describe("constructor validation", () => {
         it("should throw an error if handler is not a function", () => {
@@ -50,13 +57,7 @@ describe("Router", () => {
     describe("navigate validation", () => {
         const router = new Router(jest.fn());
 
-        const validRequest = {
-            method: "GET",
-            url: "http://localhost/path"
-        };
-
-        const emptyResponse = null;
-        const validResponse = {};
+        const validRequest = createRequest("GET", "/path");
 
         it.each([
             [null],
@@ -83,11 +84,7 @@ describe("Router", () => {
         });
 
         it('should call notFoundHandler when route is not added', () => {
-            const request = {
-                method: "GET",
-                url: "http://localhost/"
-            };
-
+            const request = createRequest("GET", "/");
             router.navigate(request, response);
 
             expect(notFoundHandler).toHaveBeenCalled();
@@ -99,10 +96,7 @@ describe("Router", () => {
             const handler = jest.fn();
             router.add(method, path, handler);
 
-            const request = {
-                method: "GET",
-                url: "http://localhost/example/123"
-            };
+            const request = createRequest("GET", "/example/123");
 
             router.navigate(request, response);
 
@@ -115,10 +109,7 @@ describe("Router", () => {
             const handler = jest.fn();
             router.add(method, path, handler);
 
-            const request = {
-                method: "GET",
-                url: "http://localhost/example/123/"
-            };
+            const request = createRequest("GET", "/example/123/");
 
             router.navigate(request, response);
 
@@ -131,10 +122,7 @@ describe("Router", () => {
             const handler = jest.fn();
             router.add(method, path, handler);
 
-            const request = {
-                method: "GET",
-                url: "http://localhost/hello"
-            };
+            const request = createRequest("GET", "/hello");
 
             router.navigate(request, response);
 
