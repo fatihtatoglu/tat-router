@@ -4,16 +4,29 @@ const Router = require("../router"),
 function createRequest(method, url) {
     return {
         method: method,
-        url: "http://localhost" + url
+        url: "http://localhost" + url,
+        headers: {
+            "content-type": "text/plain"
+        }
     };
 }
 
 describe("Scenario", () => {
 
     const notFoundHandler = jest.fn();
-    let router, response = {};
+
+    /**
+     * @type {Router}
+     */
+    let router;
+
+    let response = {};
 
     beforeEach(() => {
+
+        /**
+         * @type {Router}
+         */
         router = new Router(notFoundHandler);
     });
 
@@ -27,7 +40,7 @@ describe("Scenario", () => {
             ["GET", "/static/app.js", staticHandler, createRequest("GET", "/static/app.js"), response, {}, {}],
             ["GET", "/static/app.js", staticHandler, createRequest("GET", "/static/app.js?v=20230329"), response, {}, { v: "20230329" }]
         ])("should return static path", (method, path, handler, req, result, params, query) => {
-            router.add(method, path, handler)
+            router.addRoute(method, path, handler);
 
             router.navigate(req, response);
 
@@ -40,7 +53,7 @@ describe("Scenario", () => {
             const handler = jest.fn();
             const request = createRequest("GET", "/");
 
-            router.add("GET", "/", handler);
+            router.addRoute("GET", "/", handler);
 
             router.navigate(request, response);
 
@@ -51,7 +64,7 @@ describe("Scenario", () => {
             const handler = jest.fn();
             const request = createRequest("GET", "?token=abc");
 
-            router.add("GET", "/", handler);
+            router.addRoute("GET", "/", handler);
 
             router.navigate(request, response);
 
@@ -70,7 +83,7 @@ describe("Scenario", () => {
             ["PUT", "/menu/:merchantId", createRequest("PUT", "/menu/123"), response, { merchantId: "123" }, {}],
             ["PUT", "/menu/:merchantId", createRequest("PUT", "/menu/123?key=value"), response, { merchantId: "123" }, { key: "value" }],
         ])("should return the parameter with key", (method, path, req, result, params, query) => {
-            router.add(method, path, handler)
+            router.addRoute(method, path, handler);
 
             router.navigate(req, response);
 
@@ -81,7 +94,7 @@ describe("Scenario", () => {
             const request = createRequest("GET", "/orders/:orderId");
             const handler = jest.fn();
 
-            router.add("GET", "/orders/:orderId", handler);
+            router.addRoute("GET", "/orders/:orderId", handler);
 
             router.navigate(request, response);
 
@@ -95,9 +108,9 @@ describe("Scenario", () => {
         const handler = jest.fn();
 
         it("should define routes in correct order", () => {
-            router.add("GET", "/flights/:from-:to-:orderBy-:top", handler);
-            router.add("GET", "/flights/:from-:to-:orderBy", handler);
-            router.add("GET", "/flights/:from-:to", handler);
+            router.addRoute("GET", "/flights/:from-:to-:orderBy-:top", handler);
+            router.addRoute("GET", "/flights/:from-:to-:orderBy", handler);
+            router.addRoute("GET", "/flights/:from-:to", handler);
 
             router.navigate(request, response);
 
@@ -105,9 +118,9 @@ describe("Scenario", () => {
         });
 
         it("should not define routes in correct order", () => {
-            router.add("GET", "/flights/:from-:to", handler);
-            router.add("GET", "/flights/:from-:to-:orderBy", handler);
-            router.add("GET", "/flights/:from-:to-:orderBy-:top", handler);
+            router.addRoute("GET", "/flights/:from-:to", handler);
+            router.addRoute("GET", "/flights/:from-:to-:orderBy", handler);
+            router.addRoute("GET", "/flights/:from-:to-:orderBy-:top", handler);
 
             router.navigate(request, response);
 
@@ -123,7 +136,7 @@ describe("Scenario", () => {
         });
 
         it("should handle the optional parameter", () => {
-            router.add("GET", "/users/:userId/posts/:postId?", handler);
+            router.addRoute("GET", "/users/:userId/posts/:postId?", handler);
 
             const request = createRequest("GET", "/users/123/posts/456");
 
@@ -133,7 +146,7 @@ describe("Scenario", () => {
         });
 
         it("should skip optional parameter", () => {
-            router.add("GET", "/users/:userId/posts/:postId?", handler);
+            router.addRoute("GET", "/users/:userId/posts/:postId?", handler);
 
             const request = createRequest("GET", "/users/123/posts");
 
@@ -146,7 +159,7 @@ describe("Scenario", () => {
             [createRequest("GET", "/users/123/posts/456?token=abc&limit=15"), response, { userId: "123", postId: "456" }, { token: "abc", limit: "15" }],
             [createRequest("GET", "/users/123/posts?token=abc&limit=15"), response, { userId: "123", postId: "" }, { token: "abc", limit: "15" }]
         ])("should handle query string with optional parameters", (request, result, params, query) => {
-            router.add("GET", "/users/:userId/posts/:postId?", handler);
+            router.addRoute("GET", "/users/:userId/posts/:postId?", handler);
 
             router.navigate(request, response);
 
@@ -157,7 +170,7 @@ describe("Scenario", () => {
             ["/users/:userId?-:orderBy?"],
             ["/users/:userId?/:orderBy?"]
         ])("should handle multiple optional parameter", (path) => {
-            router.add("GET", path, handler);
+            router.addRoute("GET", path, handler);
 
             const request = createRequest("GET", "/users");
 

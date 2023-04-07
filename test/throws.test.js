@@ -93,28 +93,5 @@ describe("Throws", () => {
             expect(() => Throws.notHave(obj, propName, "Invalid object")).not.toThrow();
         });
     });
-
-    describe("validUrl", () => {
-        it.each([
-            ["localhost"],
-            ["127.0.0.1"],
-            ["?key=value"],
-            ["/users/123"],
-            ["/users/123/posts/456?token=abc"],
-            ["mailto:fatih@tatoglu.net"],
-        ])("should throw an error if the url is not valid", (url) => {
-            expect(() => Throws.validURL(url, "Invalid URL")).toThrow("Invalid URL");
-        });
-
-        it.each([
-            ["https://blog.tatoglu.net"],
-            ["http://localhost"],
-            ["http://127.0.0.1:8080/users"],
-            ["ftp://ftp.example.com"],
-            ["http://localhost/users/123"],
-            ["http://localhost/users/123/posts/456?token=abc"]
-        ])("should not throw an error if the url is valid", (url) => {
-            expect(() => Throws.validURL(url, "Invalid URL")).not.toThrow();
-        });
-    });
 });
+() => { }

@@ -82,29 +82,4 @@ Throws.notHave = function (obj, propName, message) {
     }
 };
 
-/**
- * Throws an error if the url is not valid. This method only allows HTTP, HTTPS, and FTP.
- * 
- * @param {string} url - The url to check. 
- * @param {string} message - The error message to throw if the url is not valid.
- * @throws {Error} - Throws an error with the specified message if `url` is not valid.
- * @description -   After scaning the code with Synk, the validation of checking url is open ReDOS vulnerability. According to the following links this method is added.
- * {@link https://learn.snyk.io/lessons/redos/javascript/|ReDoS}
- * {@link https://snyk.io/blog/secure-javascript-url-validation/|Secure JavaScript URL validation}
- */
-Throws.validURL = function (url, message) {
-    let givenURL;
-
-    try {
-        givenURL = new URL(url);
-
-        if (givenURL.protocol !== "http:" && givenURL.protocol !== "https:" && givenURL.protocol !== "ftp:") {
-            throw Error(message);
-        }
-    }
-    catch {
-        throw Error(message);
-    }
-};
-
 module.exports = Throws;
