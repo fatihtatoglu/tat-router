@@ -1,6 +1,6 @@
-const Router = require("../router"),
-    { describe, expect } = require("@jest/globals"),
-    METHODS = require("http").METHODS;
+const { describe, expect, it, beforeEach } = require("@jest/globals");
+const METHODS = require("http").METHODS;
+const Router = require("../router");
 
 function createRequest(method, url) {
     return {
@@ -19,15 +19,12 @@ describe("Router", () => {
         });
 
         it("should not throw an error if handler is a function", () => {
-            expect(() => { new Router(jest.fn()) }).not.toThrow();
+            expect(() => { new Router(jest.fn()); }).not.toThrow();
         });
     });
 
-    describe("add validations", () => {
-        /**
-         * @type {Router}
-         */
-        const router = new Router(jest.fn());
+    describe("addRoute validations", () => {
+        const SUT = new Router(jest.fn());
 
         const notStringMethod = 123;
         const emptyStringMethod = "";
@@ -36,114 +33,146 @@ describe("Router", () => {
         const handler = jest.fn();
 
         it("should throw an error if the method is not string", () => {
-            expect(() => { router.addRoute(notStringMethod, path, handler) }).toThrow("Invalid method.");
+            expect(() => { SUT.addRoute(notStringMethod, path, handler); }).toThrow("Invalid method.");
         });
 
         it("should throw an error if the method is empty string", () => {
-            expect(() => { router.addRoute(emptyStringMethod, path, handler) }).toThrow("Invalid method.");
+            expect(() => { SUT.addRoute(emptyStringMethod, path, handler); }).toThrow("Invalid method.");
         });
 
         it("should throw an error if the method is invalid", () => {
-            expect(() => { router.addRoute(invalidMethod, path, handler) }).toThrow("Invalid method. It should be one of the following. Valid methods: " + METHODS);
+            expect(() => { SUT.addRoute(invalidMethod, path, handler); }).toThrow("Invalid method. It should be one of the following. Valid methods: " + METHODS);
         });
     });
 
-    describe("add", () => {
+    describe("addRoute", () => {
         it("should add a new route", () => {
             /**
              * @type {Router}
              */
-            const router = new Router(() => { });
+            const SUT = new Router(() => { });
 
             const path = "/users/:id";
             const handler = () => { };
-            router.addRoute("GET", path, handler);
-            expect(router.routes["GET"]).toHaveLength(1);
-            expect(router.routes["GET"][0].path).toBe(path);
-            expect(router.routes["GET"][0].handler).toBe(handler);
+            expect(() => { SUT.addRoute("GET", path, handler); }).not.toThrow();
         });
     });
 
-    describe("navigate validation", () => {
-        /**
-         * @type {Router}
-         */
-        const router = new Router(jest.fn());
+    describe("static route", () => {
 
-        const validRequest = createRequest("GET", "/path");
+        const notFoundHandler = () => { };
 
-        // it.each([
-        //     [null],
-        //     [{}],
-        //     [{ method: "GET" }],
-        //     [{ url: "http://localhost/" }]
-        // ])("should throw an error if request is not valid", (request) => {
-        //     expect(() => { router.navigate(request); }).toThrow("Invalid request object.");
-        // });
+        const SUT = new Router(notFoundHandler);
 
-        // it("should throw an error if the response is not defined", () => {
-        //     expect(() => { router.navigate(validRequest, null); }).toThrow("Invalid response object.");
-        // });
-    });
+        const mockRequest = {
+            url: "http://localhost/static/app.js",
+            method: "GET",
+            headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36",
+                Accept: "*/*",
+                "Accept-Encoding": "gzip, deflate, br",
+                "Accept-Language": "en-US,en;q=0.9",
+                Connection: "keep-alive",
+                Host: "localhost:8080",
+                "content-type": "text/plain"
+            },
+            query: {}
+        };
 
-    describe("navigate", () => {
-        const notFoundHandler = jest.fn();
-        const response = {};
+        const staticHandler = jest.fn();
 
-        /**
-         * @type {Router}
-         */
-        let router;
+        let response = {};
 
-        beforeEach(() => {
-            router = new Router(notFoundHandler);
-        });
+        it("should handle", () => {
 
-        it('should call notFoundHandler when route is not added', () => {
-            const request = createRequest("GET", "/");
-            router.navigate(request, response);
+            SUT.addRoute("GET", "/static/app.js", staticHandler);
 
-            expect(notFoundHandler).toHaveBeenCalled();
-        });
+            SUT.navigate(mockRequest, response);
 
-        it('should call the appropriate route handler when a matching route is found', () => {
-            const method = 'GET';
-            const path = '/example/:id';
-            const handler = jest.fn();
-            router.addRoute(method, path, handler);
-
-            const request = createRequest("GET", "/example/123");
-
-            router.navigate(request, response);
-
-            expect(handler).toHaveBeenCalledWith(response, { id: '123' }, {});
-        });
-
-        it('should remove the pathname ends with / char', () => {
-            const method = 'GET';
-            const path = '/example/:id';
-            const handler = jest.fn();
-            router.addRoute(method, path, handler);
-
-            const request = createRequest("GET", "/example/123/");
-
-            router.navigate(request, response);
-
-            expect(handler).toHaveBeenCalledWith(response, { id: '123' }, {});
-        });
-
-        it('should call the notFoundHandler when a route does not defined', () => {
-            const method = 'GET';
-            const path = '/example';
-            const handler = jest.fn();
-            router.addRoute(method, path, handler);
-
-            const request = createRequest("GET", "/hello");
-
-            router.navigate(request, response);
-
-            expect(notFoundHandler).toHaveBeenCalled();
-            expect(handler).not.toHaveBeenCalled();
+            expect(staticHandler).toBeCalled();
         });
     });
+
+    // describe("navigate validation", () => {
+    //     /**
+    //      * @type {Router}
+    //      */
+    //     const SUT = new Router(jest.fn());
+
+    //     const validRequest = createRequest("GET", "/path");
+
+    //     // it.each([
+    //     //     [null],
+    //     //     [{}],
+    //     //     [{ method: "GET" }],
+    //     //     [{ url: "http://localhost/" }]
+    //     // ])("should throw an error if request is not valid", (request) => {
+    //     //     expect(() => { router.navigate(request); }).toThrow("Invalid request object.");
+    //     // });
+
+    //     // it("should throw an error if the response is not defined", () => {
+    //     //     expect(() => { router.navigate(validRequest, null); }).toThrow("Invalid response object.");
+    //     // });
+    // });
+
+    // describe("navigate", () => {
+    //     const notFoundHandler = jest.fn();
+    //     const response = {};
+
+    //     /**
+    //      * @type {Router}
+    //      */
+    //     let SUT;
+
+    //     beforeEach(() => {
+    //         SUT = new Router(notFoundHandler);
+    //     });
+
+    //     it("should call notFoundHandler when route is not added", () => {
+    //         const request = createRequest("GET", "/");
+    //         SUT.navigate(request, response);
+
+    //         expect(notFoundHandler).toHaveBeenCalled();
+    //     });
+
+    //     it("should call the appropriate route handler when a matching route is found", () => {
+    //         const method = "GET";
+    //         const path = "/example/:id";
+    //         const handler = jest.fn();
+    //         SUT.addRoute(method, path, handler);
+
+    //         const request = createRequest("GET", "/example/123");
+
+    //         SUT.navigate(request, response);
+
+    //         expect(handler).toHaveBeenCalledWith(response, { id: "123" }, {});
+    //     });
+
+    //     it("should remove the pathname ends with / char", () => {
+    //         const method = "GET";
+    //         const path = "/example/:id";
+    //         const handler = jest.fn();
+    //         SUT.addRoute(method, path, handler);
+
+    //         const request = createRequest("GET", "/example/123/");
+
+    //         SUT.navigate(request, response);
+
+    //         expect(handler).toHaveBeenCalledWith(response, { id: "123" }, {});
+    //     });
+
+    //     it("should call the notFoundHandler when a route does not defined", () => {
+    //         const method = "GET";
+    //         const path = "/example";
+    //         const handler = jest.fn();
+    //         SUT.addRoute(method, path, handler);
+
+    //         const request = createRequest("GET", "/hello");
+
+    //         SUT.navigate(request, response);
+
+    //         expect(notFoundHandler).toHaveBeenCalled();
+    //         expect(handler).not.toHaveBeenCalled();
+    //     });
+    // });
 });

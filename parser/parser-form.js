@@ -1,40 +1,32 @@
 const Parser = require("./parser");
 
-function FormParser() {
-    Parser.call(this);
-};
-FormParser.prototype = Object.create(Parser.prototype);
-
 /**
- * Returns the possible content types to handle.
+ * The text body parser.
  * 
- * @returns {Array<string>} - The array of the possible content types.
+ * @class
+ * @extends Parser
  */
-FormParser.prototype.getContentTypes = function () {
-    return [
-        "application/x-www-form-urlencoded"
-    ];
-};
+class FormParser extends Parser {
 
-/**
- * Parses the request body.
- * 
- * @param {string} contentType - The content type of the request body.
- * @param {Buffer} body - The buffer data of the request body.
- * @param {Object} requestWrapper - The wrapper object of the request.
- */
-FormParser.prototype.parse = function (contentType, body, requestWrapper) {
-    body = body.toString();
+    getContentTypes() {
+        return [
+            "application/x-www-form-urlencoded"
+        ];
+    }
 
-    const charset = this.__getCharset(contentType);
-    const parameters = new URLSearchParams(body);
+    parse(contentType, body, requestWrapper) {
+        body = body.toString();
 
-    requestWrapper.charset = charset;
-    requestWrapper.fields = {};
+        const charset = this._getCharset(contentType);
+        const parameters = new URLSearchParams(body);
 
-    parameters.forEach((key, value) => {
-        requestWrapper.fields[key] = value;
-    });
-};
+        requestWrapper.charset = charset;
+        requestWrapper.fields = {};
+
+        parameters.forEach((key, value) => {
+            requestWrapper.fields[key] = value;
+        });
+    }
+}
 
 module.exports = FormParser;

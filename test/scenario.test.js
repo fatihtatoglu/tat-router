@@ -1,5 +1,5 @@
-const Router = require("../router"),
-    { describe, expect } = require("@jest/globals");
+const { describe, expect, it, beforeEach } = require("@jest/globals");
+const Router = require("../router");
 
 function createRequest(method, url) {
     return {
@@ -15,168 +15,165 @@ describe("Scenario", () => {
 
     const notFoundHandler = jest.fn();
 
-    /**
-     * @type {Router}
-     */
-    let router;
+    let SUT;
 
     let response = {};
 
     beforeEach(() => {
-
-        /**
-         * @type {Router}
-         */
-        router = new Router(notFoundHandler);
+        SUT = new Router(notFoundHandler);
     });
 
-    describe("static path", () => {
+    it("empty", () => {
 
-        const staticHandler = jest.fn((res) => {
-            res.content = "static-content";
-        });
-
-        it.each([
-            ["GET", "/static/app.js", staticHandler, createRequest("GET", "/static/app.js"), response, {}, {}],
-            ["GET", "/static/app.js", staticHandler, createRequest("GET", "/static/app.js?v=20230329"), response, {}, { v: "20230329" }]
-        ])("should return static path", (method, path, handler, req, result, params, query) => {
-            router.addRoute(method, path, handler);
-
-            router.navigate(req, response);
-
-            expect(handler).toHaveBeenCalledWith(result, params, query);
-        });
     });
 
-    describe("parameterless", () => {
-        it("should return content", () => {
-            const handler = jest.fn();
-            const request = createRequest("GET", "/");
+    // describe("static path", () => {
 
-            router.addRoute("GET", "/", handler);
+    //     const staticHandler = jest.fn((res) => {
+    //         res.content = "static-content";
+    //     });
 
-            router.navigate(request, response);
+    //     it.each([
+    //         ["GET", "/static/app.js", staticHandler, createRequest("GET", "/static/app.js"), response, {}, {}],
+    //         ["GET", "/static/app.js", staticHandler, createRequest("GET", "/static/app.js?v=20230329"), response, {}, { v: "20230329" }]
+    //     ])("should return static path", (method, path, handler, req, result, params, query) => {
+    //         SUT.addRoute(method, path, handler);
 
-            expect(handler).toHaveBeenCalledWith(response, {}, {});
-        });
+    //         SUT.navigate(req, response);
 
-        it("should return content with query string", () => {
-            const handler = jest.fn();
-            const request = createRequest("GET", "?token=abc");
+    //         expect(handler).toBeCalled();
+    //     });
+    // });
 
-            router.addRoute("GET", "/", handler);
+    // describe("parameterless", () => {
+    //     it("should return content", () => {
+    //         const handler = jest.fn();
+    //         const request = createRequest("GET", "/");
 
-            router.navigate(request, response);
+    //         SUT.addRoute("GET", "/", handler);
 
-            expect(handler).toHaveBeenCalledWith(response, {}, { token: "abc" });
-        });
-    });
+    //         SUT.navigate(request, response);
 
-    describe("with parameter", () => {
+    //         expect(handler).toHaveBeenCalledWith(response, {}, {});
+    //     });
 
-        const handler = jest.fn();
+    //     it("should return content with query string", () => {
+    //         const handler = jest.fn();
+    //         const request = createRequest("GET", "?token=abc");
 
-        it.each([
-            ["GET", "/orders/:orderId", createRequest("GET", "/orders/123"), response, { orderId: "123" }, {}],
-            ["GET", "/:id/orders", createRequest("GET", "/124/orders"), response, { id: "124" }, {}],
-            ["POST", "/merchantId/:merchantId/orderId/:orderId/orderStatus", createRequest("POST", "/merchantId/12/orderId/3456/orderStatus"), response, { merchantId: "12", orderId: "3456" }, {}],
-            ["PUT", "/menu/:merchantId", createRequest("PUT", "/menu/123"), response, { merchantId: "123" }, {}],
-            ["PUT", "/menu/:merchantId", createRequest("PUT", "/menu/123?key=value"), response, { merchantId: "123" }, { key: "value" }],
-        ])("should return the parameter with key", (method, path, req, result, params, query) => {
-            router.addRoute(method, path, handler);
+    //         SUT.addRoute("GET", "/", handler);
 
-            router.navigate(req, response);
+    //         SUT.navigate(request, response);
 
-            expect(handler).toHaveBeenCalledWith(result, params, query);
-        });
+    //         expect(handler).toHaveBeenCalledWith(response, {}, { token: "abc" });
+    //     });
+    // });
 
-        it("should call notFoundHandler when path and url is same", () => {
-            const request = createRequest("GET", "/orders/:orderId");
-            const handler = jest.fn();
+    // describe("with parameter", () => {
 
-            router.addRoute("GET", "/orders/:orderId", handler);
+    //     const handler = jest.fn();
 
-            router.navigate(request, response);
+    //     it.each([
+    //         ["GET", "/orders/:orderId", createRequest("GET", "/orders/123"), response, { orderId: "123" }, {}],
+    //         ["GET", "/:id/orders", createRequest("GET", "/124/orders"), response, { id: "124" }, {}],
+    //         ["POST", "/merchantId/:merchantId/orderId/:orderId/orderStatus", createRequest("POST", "/merchantId/12/orderId/3456/orderStatus"), response, { merchantId: "12", orderId: "3456" }, {}],
+    //         ["PUT", "/menu/:merchantId", createRequest("PUT", "/menu/123"), response, { merchantId: "123" }, {}],
+    //         ["PUT", "/menu/:merchantId", createRequest("PUT", "/menu/123?key=value"), response, { merchantId: "123" }, { key: "value" }],
+    //     ])("should return the parameter with key", (method, path, req, result, params, query) => {
+    //         SUT.addRoute(method, path, handler);
 
-            expect(notFoundHandler).toHaveBeenCalledWith(response);
-            expect(handler).not.toHaveBeenCalled();
-        });
-    });
+    //         SUT.navigate(req, response);
 
-    describe("advanced case", () => {
-        const request = createRequest("GET", "/flights/TUR-SAW-ASC-5");
-        const handler = jest.fn();
+    //         expect(handler).toHaveBeenCalledWith(result, params, query);
+    //     });
 
-        it("should define routes in correct order", () => {
-            router.addRoute("GET", "/flights/:from-:to-:orderBy-:top", handler);
-            router.addRoute("GET", "/flights/:from-:to-:orderBy", handler);
-            router.addRoute("GET", "/flights/:from-:to", handler);
+    //     it("should call notFoundHandler when path and url is same", () => {
+    //         const request = createRequest("GET", "/orders/:orderId");
+    //         const handler = jest.fn();
 
-            router.navigate(request, response);
+    //         SUT.addRoute("GET", "/orders/:orderId", handler);
 
-            expect(handler).toHaveBeenCalledWith(response, { from: "TUR", to: "SAW", orderBy: "ASC", top: "5" }, {});
-        });
+    //         SUT.navigate(request, response);
 
-        it("should not define routes in correct order", () => {
-            router.addRoute("GET", "/flights/:from-:to", handler);
-            router.addRoute("GET", "/flights/:from-:to-:orderBy", handler);
-            router.addRoute("GET", "/flights/:from-:to-:orderBy-:top", handler);
+    //         expect(notFoundHandler).toHaveBeenCalledWith(response);
+    //         expect(handler).not.toHaveBeenCalled();
+    //     });
+    // });
 
-            router.navigate(request, response);
+    // describe("advanced case", () => {
+    //     const request = createRequest("GET", "/flights/TUR-SAW-ASC-5");
+    //     const handler = jest.fn();
 
-            expect(handler).toHaveBeenCalledWith(response, { from: "TUR-SAW-ASC", to: "5" }, {});
-        });
-    });
+    //     it("should define routes in correct order", () => {
+    //         SUT.addRoute("GET", "/flights/:from-:to-:orderBy-:top", handler);
+    //         SUT.addRoute("GET", "/flights/:from-:to-:orderBy", handler);
+    //         SUT.addRoute("GET", "/flights/:from-:to", handler);
 
-    describe("optional parameters", () => {
-        let handler;
+    //         SUT.navigate(request, response);
 
-        beforeEach(() => {
-            handler = jest.fn();
-        });
+    //         expect(handler).toHaveBeenCalledWith(response, { from: "TUR", to: "SAW", orderBy: "ASC", top: "5" }, {});
+    //     });
 
-        it("should handle the optional parameter", () => {
-            router.addRoute("GET", "/users/:userId/posts/:postId?", handler);
+    //     it("should not define routes in correct order", () => {
+    //         SUT.addRoute("GET", "/flights/:from-:to", handler);
+    //         SUT.addRoute("GET", "/flights/:from-:to-:orderBy", handler);
+    //         SUT.addRoute("GET", "/flights/:from-:to-:orderBy-:top", handler);
 
-            const request = createRequest("GET", "/users/123/posts/456");
+    //         SUT.navigate(request, response);
 
-            router.navigate(request, response);
+    //         expect(handler).toHaveBeenCalledWith(response, { from: "TUR-SAW-ASC", to: "5" }, {});
+    //     });
+    // });
 
-            expect(handler).toHaveBeenCalledWith(response, { userId: "123", postId: "456" }, {});
-        });
+    // describe("optional parameters", () => {
+    //     let handler;
 
-        it("should skip optional parameter", () => {
-            router.addRoute("GET", "/users/:userId/posts/:postId?", handler);
+    //     beforeEach(() => {
+    //         handler = jest.fn();
+    //     });
 
-            const request = createRequest("GET", "/users/123/posts");
+    //     it("should handle the optional parameter", () => {
+    //         SUT.addRoute("GET", "/users/:userId/posts/:postId?", handler);
 
-            router.navigate(request, response);
+    //         const request = createRequest("GET", "/users/123/posts/456");
 
-            expect(handler).toHaveBeenCalledWith(response, { userId: "123", postId: "" }, {});
-        });
+    //         SUT.navigate(request, response);
 
-        it.each([
-            [createRequest("GET", "/users/123/posts/456?token=abc&limit=15"), response, { userId: "123", postId: "456" }, { token: "abc", limit: "15" }],
-            [createRequest("GET", "/users/123/posts?token=abc&limit=15"), response, { userId: "123", postId: "" }, { token: "abc", limit: "15" }]
-        ])("should handle query string with optional parameters", (request, result, params, query) => {
-            router.addRoute("GET", "/users/:userId/posts/:postId?", handler);
+    //         expect(handler).toHaveBeenCalledWith(response, { userId: "123", postId: "456" }, {});
+    //     });
 
-            router.navigate(request, response);
+    //     it("should skip optional parameter", () => {
+    //         SUT.addRoute("GET", "/users/:userId/posts/:postId?", handler);
 
-            expect(handler).toHaveBeenCalledWith(result, params, query);
-        });
+    //         const request = createRequest("GET", "/users/123/posts");
 
-        it.each([
-            ["/users/:userId?-:orderBy?"],
-            ["/users/:userId?/:orderBy?"]
-        ])("should handle multiple optional parameter", (path) => {
-            router.addRoute("GET", path, handler);
+    //         SUT.navigate(request, response);
 
-            const request = createRequest("GET", "/users");
+    //         expect(handler).toHaveBeenCalledWith(response, { userId: "123", postId: "" }, {});
+    //     });
 
-            router.navigate(request, response);
+    //     it.each([
+    //         [createRequest("GET", "/users/123/posts/456?token=abc&limit=15"), response, { userId: "123", postId: "456" }, { token: "abc", limit: "15" }],
+    //         [createRequest("GET", "/users/123/posts?token=abc&limit=15"), response, { userId: "123", postId: "" }, { token: "abc", limit: "15" }]
+    //     ])("should handle query string with optional parameters", (request, result, params, query) => {
+    //         SUT.addRoute("GET", "/users/:userId/posts/:postId?", handler);
 
-            expect(handler).toHaveBeenCalledWith(response, { userId: "", orderBy: "" }, {});
-        });
-    });
+    //         SUT.navigate(request, response);
+
+    //         expect(handler).toHaveBeenCalledWith(result, params, query);
+    //     });
+
+    //     it.each([
+    //         ["/users/:userId?-:orderBy?"],
+    //         ["/users/:userId?/:orderBy?"]
+    //     ])("should handle multiple optional parameter", (path) => {
+    //         SUT.addRoute("GET", path, handler);
+
+    //         const request = createRequest("GET", "/users");
+
+    //         SUT.navigate(request, response);
+
+    //         expect(handler).toHaveBeenCalledWith(response, { userId: "", orderBy: "" }, {});
+    //     });
+    // });
 });

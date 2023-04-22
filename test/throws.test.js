@@ -1,4 +1,4 @@
-const { describe, expect } = require("@jest/globals");
+const { describe, expect, it } = require("@jest/globals");
 const Throws = require("../throws");
 
 describe("Throws", () => {
@@ -74,7 +74,7 @@ describe("Throws", () => {
                 this.val = "";
             }
             method() { }
-        };
+        }
 
         it.each([
             [{}, "firstname"],
@@ -94,4 +94,3 @@ describe("Throws", () => {
         });
     });
 });
-() => { }

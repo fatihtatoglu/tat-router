@@ -1,45 +1,28 @@
-const Parser = require("./parser"),
-    Throws = require("../throws");
-
-function TextParser() {
-    Parser.call(this);
-};
-TextParser.prototype = Object.create(Parser.prototype);
+const Parser = require("./parser");
 
 /**
- * Returns the possible content types to handle.
+ * The text body parser.
  * 
- * @returns {Array<string>} - The array of the possible content types.
+ * @class
+ * @extends Parser
  */
-TextParser.prototype.getContentTypes = function () {
-    return [
-        "text/plain"
-    ];
-};
+class TextParser extends Parser {
 
-/**
- * Parses the request body.
- * 
- * @param {string} contentType - The content type of the request body.
- * @param {Buffer} body - The buffer data of the request body.
- * @param {Object} requestWrapper - The wrapper object of the request.
- * @throws {Error} Invalid content type.
- * @throws {Error} Invalid body object.
- * @throws {Error} Invalid request wrapper object.
- */
-TextParser.prototype.parse = function (contentType, body, requestWrapper) {
-    Throws.notString(contentType, "Invalid content type.");
-    Throws.emptyString(contentType, "Invalid content type.");
-    Throws.notDefined(body, "Invalid body object.");
-    Throws.notDefined(requestWrapper, "Invalid request wrapper object.");
+    getContentTypes() {
+        return [
+            "text/plain"
+        ];
+    }
 
-    body = body.toString();
+    parse(contentType, body, requestWrapper) {
+        super.parse(contentType, body, requestWrapper);
 
-    const charset = this.__getCharset(contentType);
+        const charset = this._getCharset(contentType);
 
-    requestWrapper.contentType = "text/plain";
-    requestWrapper.charset = charset;
-    requestWrapper.content = body;
-};
+        requestWrapper.contentType = "text/plain";
+        requestWrapper.charset = charset;
+        requestWrapper.content = body.toString();
+    }
+}
 
 module.exports = TextParser;
